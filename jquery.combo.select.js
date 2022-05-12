@@ -8,18 +8,18 @@
  */
 
 // Expose plugin as an AMD module if AMD loader is present:
-(function (factory) {
-	'use strict';
-	if (typeof define === 'function' && define.amd) {
-		// AMD. Register as an anonymous module.
-		define(['jquery'], factory);
-	} else if (typeof exports === 'object' && typeof require === 'function') {
-		// Browserify
-		factory(require('jquery'));
-	} else {
-		// Browser globals
-		factory(jQuery);
-	}
+    (function (factory) {
+	 'use strict';
+	 if (typeof define === 'function' && define.amd) {
+	 	// AMD. Register as an anonymous module.
+	 	define(['jquery'], factory);
+	 } else if (typeof exports === 'object' && typeof require === 'function') {
+	 	// Browserify
+	 	factory(require('jquery'));
+	 } else {
+	 	// Browser globals
+	 	factory(jQuery);
+	 }
 }(function ( $, undefined ) {
 
 	var pluginName = "comboSelect",
@@ -172,14 +172,14 @@
 
 			var elId = this.$el.attr('id')
 
-      /* Remove id */
-      this.$el.removeAttr('id')
+			/* Remove id */
+			this.$el.removeAttr('id')
 
-      this.$input = $('<input type="text"' + (isMobile? 'tabindex="-1"': '') + ' placeholder="'+ this.getPlaceholder() +'" class="'+ this.settings.inputClass + '" id="' + elId + '">').appendTo(this.$container)
+			this.$input = $('<input type="text"' + (isMobile? 'tabindex="-1"': '') + ' placeholder="'+ this.getPlaceholder() +'" class="'+ this.settings.inputClass + '" id="' + elId + '" '+ (!!this.$el.prop("disabled")?`disabled="disabled"`:"") +' >').appendTo(this.$container)
 
 			/* Update input text */
 
-			this._updateInput()
+			// this._updateInput()
 
 		},
 		getPlaceholder: function(){
@@ -224,7 +224,6 @@
 		},
 
 		_events: function(){
-
 			/* Input: focus */
 
 			this.$container.on('focus.input', 'input', $.proxy(this._focus, this))
@@ -236,7 +235,7 @@
 			this.$container.on('mouseup.input', 'input', function(e){
 				e.preventDefault()
 			})
-
+			
 			/* Input: blur */
 
 			this.$container.on('blur.input', 'input', $.proxy(this._blur, this))
@@ -300,10 +299,33 @@
 
 			this.$container.on('click.item', '.option-item', $.proxy(this._select, this))
 
+
+
+			
+			// let enable = this.$container.find('input').prop("disabled") || this.$container.find('input').prop("readonly");
+			// if(!!enable)
+			// {
+			// 	this.$container.off();
+			// 	this.$el.off();
+			// }
+			// else
+			// {
+
+
+			// }
+			
+
+			
+
 		},
-
+		_exec:function(){
+			let enable = this.$container.find('input').prop("disabled") || this.$container.find('input').prop("readonly");
+			return !enable;
+			// if(!!enable) return;
+			// $.proxy(func, event)
+		},
 		_keydown: function(event){
-
+			if(!this._exec()) return
 
 
 			switch(event.which){
@@ -338,7 +360,7 @@
 
 
 		_keyup: function(event){
-
+			if(!this._exec()) return
 			switch(event.which){
 				case keys.ESC:
 					this.$container.trigger('comboselect:close')
@@ -360,7 +382,7 @@
 		},
 
 		_enter: function(event){
-
+			if(!this._exec()) return
 			var item = this._getHovered()
 
 			item.length && this._select(item);
@@ -415,7 +437,7 @@
 		},
 
 		_select: function(event){
-
+			//if(!this._exec()) return
 			var item = event.currentTarget? $(event.currentTarget) : $(event);
 
 			if(!item.length) return;
@@ -444,7 +466,7 @@
 			 */
 			if(typeof index == 'undefined'){
 
-				index = 0
+				index = -1;//0
 
 			}
 
@@ -568,7 +590,7 @@
 
 			}else{
 
-				this.$input.val('')
+				if(selected > -1) this.$input.val('')
 
 			}
 
@@ -582,12 +604,12 @@
 
 		},
 		_blurSelect: function(){
-
+			if(!this._exec()) return
 			this.$container.removeClass('combo-focus');
 
 		},
 		_focus: function(event){
-
+			if(!this._exec()) return
 			/* Toggle focus class */
 
 			this.$container.toggleClass('combo-focus', !this.opened);
@@ -606,7 +628,7 @@
 		},
 
 		_blur: function(){
-
+			if(!this._exec()) return
 			/**
 			 * 1. Get hovered item
 			 * 2. If not check if input value == select option
@@ -635,7 +657,7 @@
 		},
 
 		_change: function(){
-
+			if(!this._exec()) return
 
 			this._updateInput();
 
@@ -757,6 +779,8 @@
 			this.$dropdown.empty();
 
 			this._build();
+
+			this._events();
 		},
 
 		/**
